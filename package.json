@@ -1,0 +1,22 @@
+{
+  "name": "dailogo-server",
+  "version": "0.0.1",
+  "description": "The main api server for the dailogo project",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc -w",
+    "dev": "nodemon dist/index.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Nilanjan Mandal",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "fastify": "^4.28.1"
+  }
+}
