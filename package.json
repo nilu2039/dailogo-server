@@ -17,6 +17,8 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "fastify": "^4.28.1"
+    "fastify": "^4.28.1",
+    "fastify-socket.io": "^5.0.0",
+    "socket.io": "^4.7.5"
   }
 }
