@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import fastifyIO from "fastify-socket.io";
 import { Server } from "socket.io";
 import { socket } from "./lib/utils/socket";
+import { peer } from "./lib/utils/peer";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -12,8 +13,9 @@ declare module "fastify" {
 const main = async () => {
   const server = Fastify({ logger: process.env.NODE_ENV !== "production" });
   server.log.info(typeof server);
-  server.register(fastifyIO);
+  server.register(fastifyIO, { cors: { origin: "*" } });
   const port = parseInt(process.env.PORT ?? "4000");
+  peer();
 
   server.ready().then(() => {
     socket(server);
