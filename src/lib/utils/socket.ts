@@ -4,9 +4,9 @@ export const socket = (server: FastifyInstance) => {
   const io = server.io;
   io.on("connection", (socket) => {
     server.log.info(`User ${socket.id} connected`);
-    socket.on("join-room", (roomId: string, userId: string) => {
+    socket.on("join-room", async (userId: string, roomId: string) => {
       server.log.info(`User ${userId} joined room ${roomId}`);
-      socket.join(roomId);
+      await socket.join(roomId);
       socket.broadcast.to(roomId).emit("user-connected", userId);
     });
 
