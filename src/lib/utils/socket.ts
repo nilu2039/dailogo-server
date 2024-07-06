@@ -13,13 +13,10 @@ async function matchUsers(io: Server, socket: Socket) {
   console.log(waitingUsers);
   if (waitingUsers.length >= 2) {
     const [user1, user2] = await redis.spop("waitingUsers", 2);
-    console.log("1st-->", user1, user2);
     if (!user1 || !user2 || user1 === user2) return;
-    console.log("2nd-->", user1, user2);
     const roomId = generateUniqueRoomId();
     io.to([user1, user2]).emit(SOCKET_EVENTS.MATCH_FOUND, roomId);
   } else {
-    console.log("inside else");
     socket.emit(SOCKET_EVENTS.MATCH_FOUND, null);
   }
 }
@@ -35,7 +32,6 @@ export const socket = (server: FastifyInstance) => {
         "waitingUsers",
         socket.id
       );
-      console.log("isUserInWaitingList", isUserInWaitingList);
       if (isUserInWaitingList) return;
       redis.sadd("waitingUsers", socket.id);
       await matchUsers(io, socket);
@@ -52,22 +48,33 @@ export const socket = (server: FastifyInstance) => {
     );
 
     socket.on(
-      SOCKET_EVENTS.USER_TOGGLE_AUDIO,
-      (userId: string, roomId: string) => {
+      SOCKET_EVENTS.MESSAGE_SENT,
+      (roomId: string, peerId: string, message: string) => {
+        console.log("message", roomId, peerId, message);
         socket.join(roomId);
         socket.broadcast
           .to(roomId)
-          .emit(SOCKET_EVENTS.USER_TOGGLE_AUDIO, userId);
+          .emit(SOCKET_EVENTS.MESSAGE_SENT, peerId, message);
       }
     );
 
-    socket.on(
-      SOCKET_EVENTS.USER_LEAVE_ROOM,
-      (userId: string, roomId: string) => {
-        socket.join(roomId);
-        socket.broadcast.to(roomId).emit(SOCKET_EVENTS.USER_LEAVE_ROOM, userId);
-      }
-    );
+    // socket.on(
+    //   SOCKET_EVENTS.USER_TOGGLE_AUDIO,
+    //   (userId: string, roomId: string) => {
+    //     socket.join(roomId);
+    //     socket.broadcast
+    //       .to(roomId)
+    //       .emit(SOCKET_EVENTS.USER_TOGGLE_AUDIO, userId);
+    //   }
+    // );
+
+    // socket.on(
+    //   SOCKET_EVENTS.USER_LEAVE_ROOM,
+    //   (userId: string, roomId: string) => {
+    //     socket.join(roomId);
+    //     socket.broadcast.to(roomId).emit(SOCKET_EVENTS.USER_LEAVE_ROOM, userId);
+    //   }
+    // );
 
     socket.on("disconnect", () => {
       redis.srem("waitingUsers", socket.id);
