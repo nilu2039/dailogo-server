@@ -85,6 +85,7 @@ export const socket = (server: FastifyInstance) => {
 
     socket.on("disconnect", () => {
       redis.srem("waitingUsers", socket.id);
+      socket.broadcast.emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id);
       server.log.info(`User with socket id ${socket.id} has disconnected`);
     });
   });
