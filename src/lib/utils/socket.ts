@@ -76,13 +76,12 @@ export const socket = (server: FastifyInstance) => {
     //   }
     // );
 
-    // socket.on(
-    //   SOCKET_EVENTS.USER_LEAVE_ROOM,
-    //   (userId: string, roomId: string) => {
-    //     socket.join(roomId);
-    //     socket.broadcast.to(roomId).emit(SOCKET_EVENTS.USER_LEAVE_ROOM, userId);
-    //   }
-    // );
+    socket.on(SOCKET_EVENTS.USER_LEAVE_ROOM, (roomId: string) => {
+      socket.join(roomId);
+      socket.broadcast
+        .to(roomId)
+        .emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id);
+    });
 
     socket.on("disconnect", () => {
       redis.srem("waitingUsers", socket.id);
