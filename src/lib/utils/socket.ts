@@ -8,14 +8,18 @@ const generateUniqueRoomId = () => {
   return uuidv4();
 };
 
-async function matchUsers(io: Server, socket: Socket) {
+async function matchUsers(io: Server, socket: Socket, userId: string) {
   const waitingUsers = await redis.smembers("waitingUsers");
-  console.log(waitingUsers);
-  if (waitingUsers.length >= 2) {
-    const [user1, user2] = await redis.spop("waitingUsers", 2);
-    if (!user1 || !user2 || user1 === user2) return;
+  console.log("waitingUsers", waitingUsers, userId);
+  if (waitingUsers.length === 1 && waitingUsers[0] === userId) return;
+  if (waitingUsers.length >= 1) {
+    await redis.srem("waitingUsers", userId);
+    const randomUser = await redis.spop("waitingUsers");
+    console.log("randomUser", randomUser);
+    if (!randomUser || randomUser === userId) return;
+    console.log("randomUser", randomUser, userId);
     const roomId = generateUniqueRoomId();
-    io.to([user1, user2]).emit(SOCKET_EVENTS.MATCH_FOUND, roomId);
+    io.to([userId, randomUser]).emit(SOCKET_EVENTS.MATCH_FOUND, roomId);
   } else {
     socket.emit(SOCKET_EVENTS.MATCH_FOUND, null);
   }
@@ -34,7 +38,7 @@ export const socket = (server: FastifyInstance) => {
       );
       if (isUserInWaitingList) return;
       redis.sadd("waitingUsers", socket.id);
-      await matchUsers(io, socket);
+      await matchUsers(io, socket, socket.id);
     });
 
     socket.on(
@@ -57,6 +61,10 @@ export const socket = (server: FastifyInstance) => {
           .emit(SOCKET_EVENTS.MESSAGE_SENT, peerId, message);
       }
     );
+
+    socket.on(SOCKET_EVENTS.NEXT_MATCH, async () => {
+      await matchUsers(io, socket, socket.id);
+    });
 
     // socket.on(
     //   SOCKET_EVENTS.USER_TOGGLE_AUDIO,
