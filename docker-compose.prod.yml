@@ -9,6 +9,12 @@ services:
     command: node index.js
     depends_on:
       - db
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - PEER_PORT=${PEER_PORT}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
 
   db:
     image: redis:7.2.5
