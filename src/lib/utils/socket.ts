@@ -66,26 +66,19 @@ export const socket = (server: FastifyInstance) => {
       await matchUsers(io, socket, socket.id);
     });
 
-    // socket.on(
-    //   SOCKET_EVENTS.USER_TOGGLE_AUDIO,
-    //   (userId: string, roomId: string) => {
-    //     socket.join(roomId);
-    //     socket.broadcast
-    //       .to(roomId)
-    //       .emit(SOCKET_EVENTS.USER_TOGGLE_AUDIO, userId);
-    //   }
-    // );
-
-    socket.on(SOCKET_EVENTS.USER_LEAVE_ROOM, (roomId: string) => {
-      socket.join(roomId);
-      socket.broadcast
-        .to(roomId)
-        .emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id);
-    });
+    socket.on(
+      SOCKET_EVENTS.USER_LEAVE_ROOM,
+      (roomId: string, peerId: string) => {
+        socket.join(roomId);
+        socket.broadcast
+          .to(roomId)
+          .emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id, peerId);
+      }
+    );
 
     socket.on("disconnect", () => {
       redis.srem("waitingUsers", socket.id);
-      socket.broadcast.emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id);
+      socket.broadcast.emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id, null);
       server.log.info(`User with socket id ${socket.id} has disconnected`);
     });
   });
