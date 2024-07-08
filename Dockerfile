@@ -1,6 +1,7 @@
-FROM node:21 as base
+FROM node:21 AS base
 
 RUN npm install -g pnpm
+RUN npm install -g pm2
 
 WORKDIR /app
 
@@ -9,14 +10,14 @@ COPY pnpm-lock.yaml .
 
 RUN pnpm install
 
-FROM base as dev
+FROM base AS dev
 
 COPY . .
 
-FROM dev as build
+FROM dev AS build
 
 RUN pnpm build
 
-FROM base as prod
+FROM base AS prod
 
 COPY --from=build /app/dist /app

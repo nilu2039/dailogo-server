@@ -6,7 +6,7 @@ services:
     ports:
       - ${PORT}:${PORT}
       - ${PEER_PORT}:${PEER_PORT}
-    command: node index.js
+    command: pm2-runtime start --name=api index.js
     depends_on:
       - db
     environment:
