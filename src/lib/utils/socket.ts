@@ -10,14 +10,11 @@ const generateUniqueRoomId = () => {
 
 async function matchUsers(io: Server, socket: Socket, userId: string) {
   const waitingUsers = await redis.smembers("waitingUsers");
-  console.log("waitingUsers", waitingUsers, userId);
   if (waitingUsers.length === 1 && waitingUsers[0] === userId) return;
   if (waitingUsers.length >= 1) {
     await redis.srem("waitingUsers", userId);
     const randomUser = await redis.spop("waitingUsers");
-    console.log("randomUser", randomUser);
     if (!randomUser || randomUser === userId) return;
-    console.log("randomUser", randomUser, userId);
     const roomId = generateUniqueRoomId();
     io.to([userId, randomUser]).emit(SOCKET_EVENTS.MATCH_FOUND, roomId);
   } else {
@@ -54,7 +51,6 @@ export const socket = (server: FastifyInstance) => {
     socket.on(
       SOCKET_EVENTS.MESSAGE_SENT,
       (roomId: string, peerId: string, message: string) => {
-        console.log("message", roomId, peerId, message);
         socket.join(roomId);
         socket.broadcast
           .to(roomId)

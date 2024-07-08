@@ -1,3 +1,4 @@
+import "dotenv/config";
 import Fastify from "fastify";
 import fastifyIO from "fastify-socket.io";
 import { Server } from "socket.io";
