@@ -1,3 +1,4 @@
 import Redis from "ioredis";
 
-export const redis = new Redis();
+const REDIS_HOST = process.env.REDIS_HOST ?? "db";
+export const redis = new Redis({ host: REDIS_HOST });

@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      target: prod
+    ports:
+      - ${PORT}:${PORT}
+      - ${PEER_PORT}:${PEER_PORT}
+    command: node index.js
+    depends_on:
+      - db
+
+  db:
+    image: redis:7.2.5
