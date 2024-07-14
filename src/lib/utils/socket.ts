@@ -72,6 +72,26 @@ export const socket = (server: FastifyInstance) => {
       }
     );
 
+    socket.on(
+      SOCKET_EVENTS.SYNC_WHITEBOARD,
+      ({
+        roomId,
+        clientId,
+        type,
+        updates,
+      }: {
+        roomId: string;
+        clientId: string;
+        type: string;
+        updates: unknown;
+      }) => {
+        socket.join(roomId);
+        socket.broadcast
+          .to(roomId)
+          .emit(SOCKET_EVENTS.SYNC_WHITEBOARD, { clientId, type, updates });
+      }
+    );
+
     socket.on("disconnect", () => {
       redis.srem("waitingUsers", socket.id);
       socket.broadcast.emit(SOCKET_EVENTS.USER_LEAVE_ROOM, socket.id, null);
