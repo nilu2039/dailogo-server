@@ -34,7 +34,7 @@ export const socket = (server: FastifyInstance) => {
         socket.id
       );
       if (isUserInWaitingList) return;
-      redis.sadd("waitingUsers", socket.id);
+      await redis.sadd("waitingUsers", socket.id);
       await matchUsers(io, socket, socket.id);
     });
 
@@ -59,6 +59,12 @@ export const socket = (server: FastifyInstance) => {
     );
 
     socket.on(SOCKET_EVENTS.NEXT_MATCH, async () => {
+      const isUserInWaitingList = await redis.sismember(
+        "waitingUsers",
+        socket.id
+      );
+      if (isUserInWaitingList) return;
+      await redis.sadd("waitingUsers", socket.id);
       await matchUsers(io, socket, socket.id);
     });
 
