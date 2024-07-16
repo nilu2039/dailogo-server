@@ -1,7 +1,7 @@
 {
-  "name": "dailogo-server",
+  "name": "kaigi-server",
   "version": "0.0.1",
-  "description": "The main api server for the dailogo project",
+  "description": "The main api server for the kaigi project",
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc -w",

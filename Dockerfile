@@ -1,4 +1,4 @@
-FROM node:21 AS base
+FROM node:21-alpine AS base
 
 RUN npm install -g pnpm
 RUN npm install -g pm2
